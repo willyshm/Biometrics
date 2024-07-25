@@ -7,7 +7,61 @@ using UnityEngine;
 
 public class Inventario : MonoBehaviour
 {
-    private bool dentroDelInventario;
+
+    public GameObject inventarioUI;
+    public GameObject zonaDeReciclajeUI;
+    public List<Slot> slots;
+    public int puntaje;
+    public int bonificacion;
+    public int penalizacion;
+
+    private bool mostrandoInventario;
+
+    private void Start()
+    {
+        foreach (var slot in slots)
+        {
+            slot.ClearSlot();
+            return;
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            mostrandoInventario = !mostrandoInventario;
+            inventarioUI.SetActive(mostrandoInventario);
+        }
+    }
+
+    public void AddItem(Sprite icon, string tipo)
+    {
+        foreach (var slot in slots)
+        {
+            if (slot.empty)
+            {
+                slot.UpdateSlot(icon, tipo);
+                return;
+            }
+        }
+    }
+
+    public void RecolectarMaterial(DetectarPersonaje puntoDeReciclaje, DraggableItem item)
+    {
+        string tipoItem = item.GetComponent<Slot>().tipo;
+        if (tipoItem == puntoDeReciclaje.tipoRecoleccion)
+        {
+            puntaje += bonificacion;
+            item.GetComponent<Slot>().ClearSlot();
+        }
+        else
+        {
+            puntaje -= penalizacion;
+        }
+    }
+}
+    /*private bool dentroDelInventario;
     public GameObject inventario;
 
     private int cantidadSlots;
@@ -37,7 +91,7 @@ public class Inventario : MonoBehaviour
     {
         /*validar para abrir el inventario*/
 
-        if (Input.GetKeyDown(KeyCode.I))
+       /* if (Input.GetKeyDown(KeyCode.I))
         {
             dentroDelInventario = !dentroDelInventario;
         }
@@ -91,5 +145,5 @@ public class Inventario : MonoBehaviour
             }
             
         }
-    }
-}
+    }*/
+
