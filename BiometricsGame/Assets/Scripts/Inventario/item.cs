@@ -5,9 +5,7 @@ using static UnityEditor.Progress;
 
 public class item : MonoBehaviour
 {
-    public string itemName;  // Nombre del objeto
-    public Sprite itemIcon;  // Ícono del objeto
-
-// Clases derivadas para diferentes tipos de objetos
+    public string itemName = "New Item";  // Nombre del objeto
+    public Sprite itemIcon = null;  // Ícono del objeto
 
 }

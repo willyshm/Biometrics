@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8568786863940282691}
   - component: {fileID: 8814291305708594151}
   m_Layer: 0
-  m_Name: ObjCarton
+  m_Name: ObjPescado
   m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed7a01085f0be154ca0524c40991da10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemName: Carton
+  itemName: HuesoPescado
   itemIcon: {fileID: 1506606994, guid: 151fe74746405cb46a1dbc3c5b68e112, type: 3}
 --- !u!114 &8568786863940282691
 MonoBehaviour:

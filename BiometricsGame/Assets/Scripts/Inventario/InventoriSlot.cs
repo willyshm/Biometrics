@@ -6,17 +6,16 @@ using static UnityEditor.Progress;
 
 public class InventorySlot : MonoBehaviour
 {
-    public Image icon;
-    public Button removeButton;
+   public Image icon;  // Componente Image para mostrar el ícono
 
-    private item Item;
+    item Item;  // El objeto actualmente en este slot
 
     public void AddItem(item newItem)
     {
         Item = newItem;
-        icon.sprite = Item.itemIcon;
+
+        icon.sprite = Item.itemIcon;  // Establece el ícono del objeto
         icon.enabled = true;
-        removeButton.interactable = true;
     }
 
     public void ClearSlot()
@@ -24,11 +23,5 @@ public class InventorySlot : MonoBehaviour
         Item = null;
         icon.sprite = null;
         icon.enabled = false;
-        removeButton.interactable = false;
-    }
-
-    public void OnRemoveButton()
-    {
-        Inventario.instance.RemoveItem(Item);
     }
 }

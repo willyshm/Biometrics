@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8738733057594382381}
   - component: {fileID: 3384655146540719442}
   m_Layer: 0
-  m_Name: ObjVidrios
+  m_Name: ObjCafeUsado
   m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed7a01085f0be154ca0524c40991da10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemName: Vidrio
+  itemName: CafeUsado
   itemIcon: {fileID: -1200894050, guid: 151fe74746405cb46a1dbc3c5b68e112, type: 3}
 --- !u!114 &8738733057594382381
 MonoBehaviour:
