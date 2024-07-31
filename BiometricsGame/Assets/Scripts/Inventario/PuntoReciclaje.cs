@@ -7,13 +7,13 @@ public class PuntoReciclaje : MonoBehaviour
     public GameObject recycleUI;
     private bool isPlayerInZone = false;
 
-
     private void Start()
     {
         recycleUI.SetActive(false);
     }
+ 
 
-    private void OnTriggerEnter2D(Collider2D collision)
+        private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
@@ -27,7 +27,7 @@ public class PuntoReciclaje : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInZone = false;
-            recycleUI.SetActive(false);
+            //recycleUI.SetActive(false);
             Inventario.instance.SetNearRecyclePoint(false);
         }
     }
@@ -38,5 +38,11 @@ public class PuntoReciclaje : MonoBehaviour
         {
             recycleUI.SetActive(true);
         }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                recycleUI.SetActive(false);
+            }
+        }
+
     }
-}
+
