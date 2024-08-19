@@ -101,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: HuesoPescado
   itemIcon: {fileID: 1506606994, guid: 151fe74746405cb46a1dbc3c5b68e112, type: 3}
+  itemTag: 
 --- !u!114 &8568786863940282691
 MonoBehaviour:
   m_ObjectHideFlags: 0
