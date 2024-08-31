@@ -3,101 +3,141 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.UI;
-
+using TMPro;
 
 public class NPCDialogue : MonoBehaviour
 {
-    public GameObject dialogueCanvas; // Asigna aquí el Canvas que contiene las cajas de texto
-    public CinemachineVirtualCamera virtualCamera; // Asigna aquí la Cinemachine Virtual Camera
-    public float zoomAmount = 3f; // Ajusta este valor para el zoom (Orthographic Size)
-    public float zoomSpeed = 2f; // Velocidad del zoom
-    public TypewriterEffect typewriterEffect; // Asigna aquí el componente TypewriterEffect
+    public Canvas dialogueCanvas;
+    public TextMeshProUGUI dialogueText;
+    public Button interactButton;
+    public Button exitButton; // Botón para salir de la interacción
+    public CinemachineVirtualCamera virtualCamera;
+    public TypewriterEffect typewriterEffect;
 
-    private float originalSize;
+    public float zoomedSize = 3f;
+    public float normalSize = 5f;
+    public float zoomSpeed = 2f;
 
-    private void Start()
+    private bool isPlayerNearby = false;
+    private bool isZoomingIn = false;
+    private bool isZoomingOut = false;
+
+    public string[] dialogueLines;
+    private GameObject player;
+
+    private float originalCameraSize;
+
+    void Start()
     {
-        // Asegúrate de que el Canvas esté desactivado al inicio
         if (dialogueCanvas != null)
         {
-            dialogueCanvas.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("No se ha asignado el Canvas de diálogo.");
+            dialogueCanvas.enabled = false;
         }
 
-        // Guardar el tamaño ortográfico original de la cámara
+        if (interactButton != null)
+        {
+            interactButton.gameObject.SetActive(false);
+            interactButton.onClick.AddListener(OnInteract);
+        }
+
+        if (exitButton != null)
+        {
+            exitButton.gameObject.SetActive(false);
+            exitButton.onClick.AddListener(OnExitDialogue);
+        }
+
+        player = GameObject.FindGameObjectWithTag("Player");
+
         if (virtualCamera != null)
         {
-            originalSize = virtualCamera.m_Lens.OrthographicSize;
-        }
-        else
-        {
-            Debug.LogError("No se ha asignado la Cinemachine Virtual Camera.");
+            originalCameraSize = virtualCamera.m_Lens.OrthographicSize;
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    void Update()
     {
-        if (other.CompareTag("Player"))
+        // Controlar el zoom con suavizado
+        if (isZoomingIn)
         {
-            // Mostrar el Canvas cuando el jugador entra en la zona del NPC
-            if (dialogueCanvas != null)
-            {
-                dialogueCanvas.SetActive(true);
-                if (typewriterEffect != null)
-                {
-                    typewriterEffect.gameObject.SetActive(true);
-                    typewriterEffect.StartCoroutine("DisplayDialogue"); // Inicia el diálogo
-                }
-            }
+            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(
+                virtualCamera.m_Lens.OrthographicSize,
+                zoomedSize,
+                Time.deltaTime * zoomSpeed
+            );
 
-            // Hacer zoom en la cámara
-            if (virtualCamera != null)
+            if (Mathf.Abs(virtualCamera.m_Lens.OrthographicSize - zoomedSize) < 0.01f)
             {
-                StopAllCoroutines(); // Detener cualquier otra animación de zoom en curso
-                StartCoroutine(ZoomCamera(zoomAmount));
+                virtualCamera.m_Lens.OrthographicSize = zoomedSize;
+                isZoomingIn = false;
             }
         }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
+        else if (isZoomingOut)
         {
-            // Ocultar el Canvas cuando el jugador sale de la zona del NPC
-            if (dialogueCanvas != null)
-            {
-                dialogueCanvas.SetActive(false);
-                if (typewriterEffect != null)
-                {
-                    typewriterEffect.gameObject.SetActive(false); // Oculta el texto
-                }
-            }
+            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(
+                virtualCamera.m_Lens.OrthographicSize,
+                normalSize,
+                Time.deltaTime * zoomSpeed
+            );
 
-            // Restaurar el tamaño ortográfico original de la cámara
-            if (virtualCamera != null)
+            if (Mathf.Abs(virtualCamera.m_Lens.OrthographicSize - normalSize) < 0.01f)
             {
-                StopAllCoroutines(); // Detener cualquier otra animación de zoom en curso
-                StartCoroutine(ZoomCamera(originalSize));
+                virtualCamera.m_Lens.OrthographicSize = normalSize;
+                isZoomingOut = false;
             }
         }
     }
 
-    private IEnumerator ZoomCamera(float targetSize)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        float startSize = virtualCamera.m_Lens.OrthographicSize;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < zoomSpeed)
+        if (collision.CompareTag("Player"))
         {
-            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(startSize, targetSize, elapsedTime / zoomSpeed);
-            elapsedTime += Time.deltaTime;
-            yield return null;
+            isPlayerNearby = true;
+            interactButton.gameObject.SetActive(true);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            isPlayerNearby = false;
+            interactButton.gameObject.SetActive(false);
+            if (!dialogueCanvas.enabled) // Solo inicia el zoom out si el diálogo no está activo
+            {
+                isZoomingOut = true;
+            }
+        }
+    }
+
+    private void OnInteract()
+    {
+        if (player != null)
+        {
+            player.GetComponent<PlayerMovement>().enabled = false; // Desactiva el script de movimiento
         }
 
-        virtualCamera.m_Lens.OrthographicSize = targetSize;
+        dialogueCanvas.enabled = true;
+        isZoomingIn = true; // Inicia el zoom in cuando se presiona el botón
+
+        typewriterEffect.StartTyping(dialogueLines);
+        interactButton.gameObject.SetActive(false);
+    }
+
+    public void OnDialogueEnd()
+    {
+        exitButton.gameObject.SetActive(true); // Muestra el botón de salida cuando termine el diálogo
+    }
+
+    private void OnExitDialogue()
+    {
+        if (player != null)
+        {
+            player.GetComponent<PlayerMovement>().enabled = true;
+        }
+
+        dialogueCanvas.enabled = false;
+        exitButton.gameObject.SetActive(false);
+        isZoomingOut = true; // Inicia el zoom out al salir del diálogo
     }
 }
 

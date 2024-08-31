@@ -1,59 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TypewriterEffect : MonoBehaviour
 {
-    public Text dialogueText; // Asigna aquí el componente Text
-    public float typingSpeed = 0.05f; // Velocidad de escritura
-    public string[] dialogues; // Array para varios textos de diálogo
+    public TextMeshProUGUI dialogueText;
+    public float typingSpeed = 0.05f;
+    public NPCDialogue npcDialogue;
 
-    private int currentIndex = 0;
+    private string[] lines;
     private bool isTyping = false;
 
-    private void Start()
+    void Update()
     {
-        if (dialogueText != null)
+        if (Input.anyKeyDown && isTyping) // Detecta cualquier tecla
         {
-            dialogueText.text = ""; // Asegúrate de que el texto esté vacío al inicio
-            StartCoroutine(DisplayDialogue());
+            StopAllCoroutines();
+            dialogueText.text = lines[lines.Length - 1]; // Muestra todo el texto
+            isTyping = false;
+            npcDialogue.OnDialogueEnd(); // Llama al método para mostrar el botón de salida
         }
     }
 
-    private void Update()
+    public void StartTyping(string[] dialogueLines)
     {
-        if (Input.anyKeyDown && !isTyping)
-        {
-            // Avanzar al siguiente texto al presionar cualquier tecla
-            if (currentIndex < dialogues.Length - 1)
-            {
-                currentIndex++;
-                StopAllCoroutines(); // Detener la animación de escritura actual
-                StartCoroutine(DisplayDialogue());
-            }
-            else
-            {
-                // Opcional: Hacer algo cuando se termina el diálogo
-                // Por ejemplo, ocultar el Canvas o realizar otra acción
-                dialogueText.gameObject.SetActive(false); // Ocultar el texto
-            }
-        }
+        lines = dialogueLines;
+        StartCoroutine(DisplayDialogue());
     }
 
     private IEnumerator DisplayDialogue()
     {
-        dialogueText.text = ""; // Limpiar el texto actual
-
-        isTyping = true;
-        string dialogue = dialogues[currentIndex]; // Obtener el texto del diálogo actual
-
-        foreach (char letter in dialogue.ToCharArray())
+        foreach (string line in lines)
         {
-            dialogueText.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
+            dialogueText.text = ""; // Limpia el texto
+            foreach (char letter in line.ToCharArray())
+            {
+                dialogueText.text += letter;
+                yield return new WaitForSeconds(typingSpeed);
+            }
+            isTyping = true;
+            yield return new WaitUntil(() => !isTyping); // Espera a que se termine de escribir
         }
-
-        isTyping = false;
     }
 }
