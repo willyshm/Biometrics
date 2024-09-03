@@ -6,42 +6,75 @@ using UnityEngine.UI;
 
 public class TypewriterEffect : MonoBehaviour
 {
+    // UI element for displaying dialogue
     public TextMeshProUGUI dialogueText;
+
+    // Typing speed (seconds per letter)
     public float typingSpeed = 0.05f;
-    public NPCDialogue npcDialogue;
+    
+    // Dialogue data
+    private string[] dialogueLines; 
+    private int currentLineIndex;
 
-    private string[] lines;
-    private bool isTyping = false;
+    // Typing state
+    private bool isTyping; 
+    private bool cancelTyping;
 
-    void Update()
+    // Event triggered when dialogue finishes
+    public delegate void TypingCompleteHandler();
+    public event TypingCompleteHandler OnTypingComplete;
+
+
+    // Start typing dialogue lines
+    public void StartTyping(string[] lines)
     {
-        if (Input.anyKeyDown && isTyping) // Detecta cualquier tecla
-        {
-            StopAllCoroutines();
-            dialogueText.text = lines[lines.Length - 1]; // Muestra todo el texto
-            isTyping = false;
-            npcDialogue.OnDialogueEnd(); // Llama al método para mostrar el botón de salida
-        }
-    }
-
-    public void StartTyping(string[] dialogueLines)
-    {
-        lines = dialogueLines;
+        dialogueLines = lines;
+        currentLineIndex = 0;
         StartCoroutine(DisplayDialogue());
     }
 
+    // Display each dialogue line
     private IEnumerator DisplayDialogue()
     {
-        foreach (string line in lines)
+        while (currentLineIndex < dialogueLines.Length)
         {
-            dialogueText.text = ""; // Limpia el texto
-            foreach (char letter in line.ToCharArray())
+            yield return StartCoroutine(TypeLine(dialogueLines[currentLineIndex]));
+            currentLineIndex++;
+            yield return new WaitUntil(() => Input.anyKeyDown); // Wait for key press
+        }
+
+        OnTypingComplete?.Invoke(); // Trigger event when done
+    }
+
+    // Type out a single line
+    private IEnumerator TypeLine(string line)
+    {
+        dialogueText.text = "";
+        isTyping = true;
+        cancelTyping = false;
+
+        foreach (char letter in line.ToCharArray())
+        {
+            if (cancelTyping) // Skip typing if canceled
             {
-                dialogueText.text += letter;
-                yield return new WaitForSeconds(typingSpeed);
+                dialogueText.text = line;
+                break;
             }
-            isTyping = true;
-            yield return new WaitUntil(() => !isTyping); // Espera a que se termine de escribir
+
+            dialogueText.text += letter;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        isTyping = false;
+    }
+
+    // Check for input to skip typing
+    void Update()
+    {
+        if (isTyping && Input.anyKeyDown)
+        {
+            cancelTyping = true;
         }
     }
 }
+
