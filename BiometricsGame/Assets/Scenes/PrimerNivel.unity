@@ -5159,7 +5159,7 @@ GameObject:
   - component: {fileID: 827588539}
   - component: {fileID: 827588537}
   - component: {fileID: 827588536}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Enemigo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5317,8 +5317,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae97fc61856f7db419d14677b1258327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pushBackForce: 10
+  pushBackForce: 5
   damage: 1
+  attackCooldown: 1.5
 --- !u!114 &827588540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5334,7 +5335,7 @@ MonoBehaviour:
   pointA: {fileID: 393752495}
   pointB: {fileID: 1651894235}
   patrolSpeed: 2
-  chaseSpeed: 4
+  chaseSpeed: 2.5
   detectionRangeWidth: 8
   detectionRangeHeight: 2
 --- !u!1 &840189238

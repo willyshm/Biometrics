@@ -4,31 +4,46 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public float pushBackForce = 5f; // Force applied to push the player back
-    public int damage = 1; // Damage dealt by the enemy
+    public float pushBackForce = 5f; // Fuerza para empujar al jugador
+    public int damage = 1; // Daño que inflige el enemigo
+    public float attackCooldown = 1.5f; // Tiempo de espera entre ataques
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private bool canAttack = true; // Controla si el enemigo puede atacar
+    private float cooldownTimer = 0f; // Temporizador de cooldown
+
+    private void Update()
     {
-        // Check if the collided object is the player
-        if (other.CompareTag("Player"))
+        // Controla el cooldown del ataque
+        if (!canAttack)
         {
-            // Get the Rigidbody2D component of the player
-            Rigidbody2D playerRb = other.GetComponent<Rigidbody2D>();
+            cooldownTimer += Time.deltaTime;
+            if (cooldownTimer >= attackCooldown)
+            {
+                canAttack = true;
+                cooldownTimer = 0f;
+            }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player") && canAttack)
+        {
+            // Calcula la dirección para empujar al jugador
+            Vector2 pushBackDirection = (collision.transform.position - transform.position).normalized;
+            Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
 
             if (playerRb != null)
             {
-                // Calculate direction to push the player back
-                Vector2 pushBackDirection = (other.transform.position - transform.position).normalized;
                 playerRb.AddForce(pushBackDirection * pushBackForce, ForceMode2D.Impulse);
 
-                // Get the PlayerHealth component of the player
-                PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-
+                PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
                 if (playerHealth != null)
                 {
-                    // Apply damage to the player
                     playerHealth.TakeDamage(damage);
                 }
+
+                canAttack = false;
             }
         }
     }
