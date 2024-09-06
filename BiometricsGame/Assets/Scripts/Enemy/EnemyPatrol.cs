@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
@@ -11,10 +10,13 @@ public class EnemyPatrol : MonoBehaviour
     public float chaseSpeed = 4f; // Velocidad de persecución
     public float detectionRangeWidth = 5f; // Ancho del rango de detección
     public float detectionRangeHeight = 3f; // Alto del rango de detección
+    public float groundDetectionDistance = 2f; // Distancia para detectar suelo
+    public Transform groundDetectionPoint; // Punto en el que se lanza el Raycast (frente del enemigo)
 
     private Vector3 targetPoint; // Punto de destino actual
     private Transform player; // Referencia al personaje
     private bool isChasing = false; // Indica si el enemigo está persiguiendo al personaje
+    private bool isGroundAhead = true; // Verifica si hay suelo adelante del enemigo
 
     void Start()
     {
@@ -24,8 +26,11 @@ public class EnemyPatrol : MonoBehaviour
 
     void Update()
     {
+        // Verifica si hay suelo delante del enemigo antes de realizar cualquier movimiento
+        CheckForGround();
+
         // Verifica si el personaje está dentro del rango de detección
-        if (Vector3.Distance(transform.position, player.position) < Mathf.Max(detectionRangeWidth, detectionRangeHeight))
+        if (Vector3.Distance(transform.position, player.position) < Mathf.Max(detectionRangeWidth, detectionRangeHeight) && isGroundAhead)
         {
             isChasing = true;
         }
@@ -35,7 +40,7 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         // Mover al enemigo según el estado actual
-        if (isChasing)
+        if (isChasing && isGroundAhead)
         {
             ChasePlayer();
         }
@@ -81,15 +86,37 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
+    void CheckForGround()
+    {
+        // Lanza un Raycast desde el centro hacia abajo para verificar si hay suelo bajo el enemigo
+        RaycastHit2D groundInfoCenter = Physics2D.Raycast(transform.position, Vector2.down, groundDetectionDistance);
+
+        // Lanza otro Raycast desde el frente hacia abajo para detectar si hay un vacío delante
+        RaycastHit2D groundInfoAhead = Physics2D.Raycast(groundDetectionPoint.position, Vector2.down, groundDetectionDistance);
+
+        // Si no hay suelo debajo o delante del enemigo, deja de perseguir al jugador
+        if (groundInfoCenter.collider == null || groundInfoAhead.collider == null)
+        {
+            isGroundAhead = false;
+        }
+        else
+        {
+            isGroundAhead = true;
+        }
+    }
+
     void OnDrawGizmosSelected()
     {
-        //Gizmos.color = Color.red;
+        // Dibujar el Raycast hacia abajo desde el centro del enemigo
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundDetectionDistance);
 
-        // Definir el tamaño del rectángulo (ancho y alto)
-        Vector3 detectionSize = new Vector3(detectionRangeWidth, detectionRangeHeight, 1);
-
-        // Dibujar un rectángulo que representa el rango de detección
-        Gizmos.DrawWireCube(transform.position, detectionSize);
+        // Dibujar el Raycast hacia abajo desde el frente del enemigo
+        if (groundDetectionPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(groundDetectionPoint.position, groundDetectionPoint.position + Vector3.down * groundDetectionDistance);
+        }
     }
 }
 
