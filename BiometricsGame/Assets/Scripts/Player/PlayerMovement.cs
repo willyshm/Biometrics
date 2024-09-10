@@ -17,12 +17,14 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 dimesionesCaja;
     public bool enSuelo;
 
-    /*Este espacio de codigo configura los controles*/
+    // Añadimos referencia al Animator
+    public Animator animator;
 
     private void Awake()
-    {   
+    {
         controles = new();
     }
+
     private void OnEnable()
     {
         controles.Enable();
@@ -35,20 +37,31 @@ public class PlayerMovement : MonoBehaviour
         controles.Movimiento.Saltar.started -= _ => Saltar();
     }
 
-    /*Fin de configuracion de controles*/
-
-    /*Este espacio del codigo es para mover el personaje*/
     private void Update()
     {
         direccion = controles.Movimiento.Mover.ReadValue<Vector2>();
         ajustarRotacion(direccion.x);
-        enSuelo = Physics2D.OverlapBox(controladorSuelo.position, dimesionesCaja, 00f, queEsSuelo);
+
+        // Detectar si está en el suelo
+        enSuelo = Physics2D.OverlapBox(controladorSuelo.position, dimesionesCaja, 0f, queEsSuelo);
+
+        // Actualizar animaciones
+        animator.SetFloat("Velocidad", Mathf.Abs(direccion.x)); // Velocidad absoluta (para ambas direcciones)
+        animator.SetBool("enSuelo", enSuelo);
+
+        // Solo marcar que está saltando si no está en el suelo
+        if (!enSuelo)
+        {
+            animator.SetBool("Saltar", true);
+        }
     }
+
     private void FixedUpdate()
     {
         Rbd2d.velocity = new Vector2(direccion.x * VelocidadMovimiento, Rbd2d.velocity.y);
     }
-    private void ajustarRotacion (float direccionX)
+
+    private void ajustarRotacion(float direccionX)
     {
         if (direccionX > 0 && !mirandoDerecha)
         {
@@ -59,6 +72,7 @@ public class PlayerMovement : MonoBehaviour
             Girar();
         }
     }
+
     private void Girar()
     {
         mirandoDerecha = !mirandoDerecha;
@@ -66,19 +80,24 @@ public class PlayerMovement : MonoBehaviour
         escala.x *= -1;
         transform.localScale = escala;
     }
-    
-    /*fin de mover el personaje*/
-
-    /*Configuracion de salto*/
 
     private void Saltar()
     {
-        if (enSuelo == true)
+        if (enSuelo)
         {
             Rbd2d.AddForce(new Vector2(0, fuerzaSalto), ForceMode2D.Impulse);
+            animator.SetBool("Saltar", true);  // Iniciar animación de salto
         }
     }
 
+    // Detectar cuándo el personaje ha aterrizado
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            animator.SetBool("Saltar", false);  // Terminar animación de salto
+        }
+    }
 
     private void OnDrawGizmos()
     {
@@ -86,3 +105,4 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawWireCube(controladorSuelo.position, dimesionesCaja);
     }
 }
+

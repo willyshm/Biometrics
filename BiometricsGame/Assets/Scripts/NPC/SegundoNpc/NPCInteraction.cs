@@ -38,8 +38,8 @@ public class NPCInteraction : MonoBehaviour
 
     void Update()
     {
-        // Check if player is in range and presses any key
-        if (playerInRange && Input.anyKeyDown)
+        // Check if player is in range and presses the 'R' key
+        if (playerInRange && Input.GetKeyDown(KeyCode.R))
         {
             // If the camera isn't zoomed in yet, start interaction
             if (!isZoomedIn)
@@ -136,10 +136,15 @@ public class NPCInteraction : MonoBehaviour
         if (playerRb != null)
         {
             playerRb.constraints = RigidbodyConstraints2D.None; // Remove all constraints
+            playerRb.constraints = RigidbodyConstraints2D.FreezeRotation; // Optional: keep rotation frozen
         }
 
         // Hide the dialogue UI when interaction ends
         dialogueUI.SetActive(false);
+
+        // Show interaction prompt again
+        interactIndicatorUI.SetActive(true);
+        interactIndicatorText.text = "Press R to interact"; // Update prompt text
     }
 
     // Coroutine to smoothly zoom in or out the camera
@@ -184,7 +189,7 @@ public class NPCInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInRange = true;  // Player is now in range
-            interactIndicatorText.text = "Press any key to interact"; // Update prompt text
+            interactIndicatorText.text = "Press R to interact"; // Update prompt text
             interactIndicatorUI.SetActive(true); // Show interaction prompt
         }
     }
