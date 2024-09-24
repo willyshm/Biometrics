@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemName: Plastico
-  itemIcon: {fileID: -823844950, guid: 151fe74746405cb46a1dbc3c5b68e112, type: 3}
+  itemIcon: {fileID: -1530199237, guid: 737b4b6cf65d0b14bb61bf16613b81d8, type: 3}
 --- !u!114 &7296206417815180739
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -139,12 +139,12 @@ TextureImporter:
       name: Botella_0
       rect:
         serializedVersion: 2
-        x: 488
-        y: 428
-        width: 104
-        height: 225
+        x: 387
+        y: 391
+        width: 300
+        height: 300
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

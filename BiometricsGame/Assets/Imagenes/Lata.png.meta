@@ -139,12 +139,12 @@ TextureImporter:
       name: Lata_0
       rect:
         serializedVersion: 2
-        x: 438
-        y: 428
-        width: 204
-        height: 221
+        x: 366
+        y: 377
+        width: 300
+        height: 300
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemName: CafeUsado
-  itemIcon: {fileID: -1200894050, guid: 151fe74746405cb46a1dbc3c5b68e112, type: 3}
+  itemIcon: {fileID: -1068350385, guid: 6c8a2e274dcb4e347b5f32c646813842, type: 3}
 --- !u!114 &8738733057594382381
 MonoBehaviour:
   m_ObjectHideFlags: 0
