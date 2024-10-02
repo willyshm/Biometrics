@@ -4,52 +4,42 @@ using UnityEngine;
 
 public class ParallaxEffectWithCamera : MonoBehaviour
 {
-    public Transform[] backgrounds;     // Array de capas del fondo
-    public float[] parallaxScales;      // Proporción de movimiento de cada capa
-    public float smoothing = 1f;        // Suavizado del movimiento del parallax
-    private Transform cameraTransform;  // Referencia a la cámara principal
-    private Vector3 previousCameraPosition;  // Posición de la cámara en el frame anterior
+    public Transform cameraTransform;  // La cámara principal
+    public float parallaxEffect;       // Velocidad de parallax
+
+    private float lengthX;             // Longitud del sprite en el eje X
+    private float startPosX;           // Posición inicial del sprite en X
 
     void Start()
     {
-        // Obtenemos la referencia de la cámara y guardamos su posición inicial
-        cameraTransform = Camera.main.transform;
-        previousCameraPosition = cameraTransform.position;
+        // Obtenemos la posición inicial y el tamaño del sprite en X
+        startPosX = transform.position.x;
+        lengthX = GetComponent<SpriteRenderer>().bounds.size.x;
 
-        // Si no se han asignado valores de parallaxScales, los establecemos por defecto
-        if (parallaxScales.Length == 0)
+        // Si no se asigna la cámara, tomamos la principal
+        if (cameraTransform == null)
         {
-            parallaxScales = new float[backgrounds.Length];
-            for (int i = 0; i < parallaxScales.Length; i++)
-            {
-                parallaxScales[i] = 1f;  // Velocidad estándar para cada capa
-            }
+            cameraTransform = Camera.main.transform;
         }
     }
 
-    void LateUpdate()
+    void Update()
     {
-        // Recorremos cada capa del fondo
-        for (int i = 0; i < backgrounds.Length; i++)
+        // Calculamos el movimiento del fondo basado en el movimiento de la cámara
+        float temp = (cameraTransform.position.x * (1 - parallaxEffect));
+        float dist = (cameraTransform.position.x * parallaxEffect);
+
+        // Actualizamos la posición del fondo con parallax
+        transform.position = new Vector3(startPosX + dist, transform.position.y, transform.position.z);
+
+        // Repetimos el fondo cuando la cámara pasa el borde del sprite
+        if (temp > startPosX + lengthX)
         {
-            // Calculamos cuánto se ha movido la cámara desde el último frame
-            float parallax = (previousCameraPosition.x - cameraTransform.position.x) * parallaxScales[i];
-
-            // Nueva posición de la capa (solo afectamos el eje X para un fondo horizontal)
-            float targetXPosition = backgrounds[i].position.x + parallax;
-
-            // Actualizamos la posición de la capa suavemente
-            Vector3 newBackgroundPosition = new Vector3(targetXPosition, backgrounds[i].position.y, backgrounds[i].position.z);
-            backgrounds[i].position = Vector3.Lerp(backgrounds[i].position, newBackgroundPosition, smoothing * Time.deltaTime);
+            startPosX += lengthX;
         }
-
-        // Actualizamos la posición anterior de la cámara para el próximo frame
-        previousCameraPosition = cameraTransform.position;
-
-        // Mantén las capas del fondo siempre frente a la cámara (opcional, si es necesario)
-        for (int i = 0; i < backgrounds.Length; i++)
+        else if (temp < startPosX - lengthX)
         {
-            backgrounds[i].position = new Vector3(backgrounds[i].position.x, backgrounds[i].position.y, cameraTransform.position.z + 10f);  // Mantén el fondo en frente de la cámara
+            startPosX -= lengthX;
         }
     }
 }
